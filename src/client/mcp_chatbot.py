@@ -5,6 +5,8 @@ import asyncio
 import nest_asyncio
 from anthropic import Anthropic
 from mcp.client.stdio import stdio_client
+from mcp.client.sse import sse_client
+from mcp.client.streamable_http import streamablehttp_client
 from contextlib import AsyncExitStack
 from mcp import ClientSession, StdioServerParameters
 
@@ -26,10 +28,19 @@ class MCP_ChatBot:
     async def connect_to_server(self, server_name, server_config):
         try:
             server_params = StdioServerParameters(**server_config)
-            stdio_transport = await self.exit_stack.enter_async_context(
-                stdio_client(server_params)
-            )
-            read, write = stdio_transport
+
+            if os.getenv("RUN_LOCALLY") == "True":
+                transport = await self.exit_stack.enter_async_context(
+                    stdio_client(server_params)
+                )
+                print(f"Connected to {server_name} using stdio_client")
+            else:
+                transport = await self.exit_stack.enter_async_context(
+                    streamablehttp_client(url="http://localhost:8001/mcp")
+                )
+                print(f"Connected to {server_name} using streamablehttp_client")
+
+            read, write = transport
             session = await self.exit_stack.enter_async_context(
                 ClientSession(read, write)
             )
