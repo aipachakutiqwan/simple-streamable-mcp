@@ -10,12 +10,9 @@ PAPER_DIR = "papers"
 print(os.environ)
 
 if os.getenv("RUN_LOCALLY") == "True":
-    # Initialize FastMCP server
     mcp = FastMCP("research")
 else:
-    # Initialize FastMCP server
     mcp = FastMCP("research", port=int(os.getenv("PORT")), stateless_http=False)
-    # mcp = FastMCP("research", port=8001, stateless_http=False)
 
 
 @mcp.tool()
@@ -186,5 +183,4 @@ if __name__ == "__main__":
     if os.getenv("RUN_LOCALLY") == "True":
         mcp.run(transport="stdio")
     else:
-        # mcp.run(transport="sse")
         mcp.run(transport="streamable-http")

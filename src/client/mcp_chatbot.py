@@ -5,7 +5,6 @@ import asyncio
 import nest_asyncio
 from anthropic import Anthropic
 from mcp.client.stdio import stdio_client
-from mcp.client.sse import sse_client
 from mcp.client.streamable_http import streamablehttp_client
 from contextlib import AsyncExitStack
 from mcp import ClientSession, StdioServerParameters
@@ -24,31 +23,38 @@ class MCP_ChatBot:
         # Sessions dict maps tool/prompt names or resource URIs to MCP client sessions
         self.sessions = {}
         self.server_config_file = os.getenv("SERVER_CONFIG_FILE")
+        self.url_mcp_server = os.getenv("URL_MCP_SERVER")
 
     async def connect_to_server(self, server_name, server_config):
         try:
-            server_params = StdioServerParameters(**server_config)
+            
 
             if os.getenv("RUN_LOCALLY") == "True":
+                server_params = StdioServerParameters(**server_config)
                 transport = await self.exit_stack.enter_async_context(
                     stdio_client(server_params)
                 )
-                print(f"Connected to {server_name} using stdio_client")
+                read, write = transport
+                #print(f"Connected to {server_name} using stdio_client")
             else:
                 transport = await self.exit_stack.enter_async_context(
-                    streamablehttp_client(url="http://localhost:8001/mcp")
+                    streamablehttp_client(url=self.url_mcp_server)
                 )
-                print(f"Connected to {server_name} using streamablehttp_client")
-
-            read, write = transport
+                read, write, _ = transport
+                #print(f"Connected to {server_name} using streamablehttp_client")
+            #print(f"transport: {transport}")
+            #print(f"read: {read}")
+            #print(f"write: {write}")
             session = await self.exit_stack.enter_async_context(
                 ClientSession(read, write)
             )
+            print(f"session: {session}")
             await session.initialize()
             try:
                 # List available tools
-                response = await session.list_tools()
-                for tool in response.tools:
+                tools_response = await session.list_tools()
+                print(f"tools_response: {tools_response}")
+                for tool in tools_response.tools:
                     self.sessions[tool.name] = session
                     self.available_tools.append(
                         {
@@ -59,6 +65,7 @@ class MCP_ChatBot:
                     )
                 # List available prompts
                 prompts_response = await session.list_prompts()
+                print(f"prompts_response: {prompts_response}")
                 if prompts_response and prompts_response.prompts:
                     for prompt in prompts_response.prompts:
                         self.sessions[prompt.name] = session
@@ -71,14 +78,15 @@ class MCP_ChatBot:
                         )
                 # List available resources
                 resources_response = await session.list_resources()
+                print(f"resources_response: {resources_response}")
                 if resources_response and resources_response.resources:
                     for resource in resources_response.resources:
                         resource_uri = str(resource.uri)
                         self.sessions[resource_uri] = session
-            except Exception as e:
-                print(f"Error {e}")
-        except Exception as e:
-            print(f"Error connecting to {server_name}: {e}")
+            except Exception as ex:
+                raise Exception(f"Error {ex}")
+        except Exception as ex:
+            raise Exception(f"Error connecting to server: {server_name}: {ex}")
 
     async def connect_to_servers(self):
         try:
