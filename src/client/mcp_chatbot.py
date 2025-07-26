@@ -1,57 +1,52 @@
 import os
 import json
-
 import asyncio
+from contextlib import AsyncExitStack
+
 import nest_asyncio
 from anthropic import Anthropic
 from mcp.client.stdio import stdio_client
 from mcp.client.streamable_http import streamablehttp_client
-from contextlib import AsyncExitStack
 from mcp import ClientSession, StdioServerParameters
+
 
 nest_asyncio.apply()
 
-
 class MCP_ChatBot:
+
     def __init__(self):
         self.exit_stack = AsyncExitStack()
         self.anthropic = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-        # Tools list required for Anthropic API
         self.available_tools = []
-        # Prompts list for quick display
         self.available_prompts = []
         # Sessions dict maps tool/prompt names or resource URIs to MCP client sessions
         self.sessions = {}
         self.server_config_file = os.getenv("SERVER_CONFIG_FILE")
         self.url_mcp_server = os.getenv("URL_MCP_SERVER")
+        self.anthropic_model = os.getenv("ANTHROPIC_MODEL")
+        self.max_tokens_model = int(os.getenv("MAX_TOKENS_MODEL"))
 
     async def connect_to_server(self, server_name, server_config):
         try:
-            
-
             if os.getenv("RUN_LOCALLY") == "True":
                 server_params = StdioServerParameters(**server_config)
                 transport = await self.exit_stack.enter_async_context(
                     stdio_client(server_params)
                 )
                 read, write = transport
-                #print(f"Connected to {server_name} using stdio_client")
             else:
+                print(f"Connecting to {server_name} using streamablehttp_client")
                 transport = await self.exit_stack.enter_async_context(
                     streamablehttp_client(url=self.url_mcp_server)
                 )
                 read, write, _ = transport
-                #print(f"Connected to {server_name} using streamablehttp_client")
-            #print(f"transport: {transport}")
-            #print(f"read: {read}")
-            #print(f"write: {write}")
+
             session = await self.exit_stack.enter_async_context(
                 ClientSession(read, write)
             )
             print(f"session: {session}")
             await session.initialize()
             try:
-                # List available tools
                 tools_response = await session.list_tools()
                 print(f"tools_response: {tools_response}")
                 for tool in tools_response.tools:
@@ -63,7 +58,6 @@ class MCP_ChatBot:
                             "input_schema": tool.inputSchema,
                         }
                     )
-                # List available prompts
                 prompts_response = await session.list_prompts()
                 print(f"prompts_response: {prompts_response}")
                 if prompts_response and prompts_response.prompts:
@@ -76,7 +70,6 @@ class MCP_ChatBot:
                                 "arguments": prompt.arguments,
                             }
                         )
-                # List available resources
                 resources_response = await session.list_resources()
                 print(f"resources_response: {resources_response}")
                 if resources_response and resources_response.resources:
@@ -89,22 +82,30 @@ class MCP_ChatBot:
             raise Exception(f"Error connecting to server: {server_name}: {ex}")
 
     async def connect_to_servers(self):
+        """
+        Connect to all servers defined in the configuration file.
+        Args:
+            :param None: None
+        Returns:
+            :None: None.
+        """
         try:
             with open(self.server_config_file, "r") as file:
                 data = json.load(file)
             servers = data.get("mcpServers", {})
             for server_name, server_config in servers.items():
                 await self.connect_to_server(server_name, server_config)
-        except Exception as e:
-            print(f"Error loading server config: {e}")
-            raise
+        except Exception as ex:
+            raise Exception(f"Error loading server config: {ex}")
+        
 
     async def process_query(self, query):
+
         messages = [{"role": "user", "content": query}]
         while True:
             response = self.anthropic.messages.create(
-                max_tokens=2024,
-                model="claude-3-7-sonnet-20250219",
+                max_tokens=self.max_tokens_model,
+                model=self.anthropic_model,
                 tools=self.available_tools,
                 messages=messages,
             )
@@ -123,9 +124,8 @@ class MCP_ChatBot:
                     if not session:
                         print(f"Tool '{content.name}' not found.")
                         break
-                    result = await session.call_tool(
-                        content.name, arguments=content.input
-                    )
+                    result = await session.call_tool(content.name, 
+                                                     arguments=content.input)
                     messages.append(
                         {
                             "role": "user",
@@ -138,7 +138,6 @@ class MCP_ChatBot:
                             ],
                         }
                     )
-            # Exit loop if no tool was used
             if not has_tool_use:
                 break
 
@@ -263,6 +262,7 @@ async def main():
         await chatbot.connect_to_servers()
         await chatbot.chat_loop()
     finally:
+        #pass
         await chatbot.cleanup()
 
 

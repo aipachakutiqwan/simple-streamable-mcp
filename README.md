@@ -15,5 +15,9 @@ MCP Chatbot
 1. Server
 npx @modelcontextprotocol/inspector uv run src/server/mcp_server.py
 
+python src/server/mcp_server.py
+
+
 2. Client
+
 uv run src/client/mcp_chatbot.py
