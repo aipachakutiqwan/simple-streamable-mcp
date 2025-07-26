@@ -1,0 +1,35 @@
+[tool.poe.tasks]
+[tool.poe.tasks.lint]
+help = "Lint this package"
+
+cmd = """
+    pre-commit run
+    --all-files
+    --color always
+    """
+
+[tool.poe.tasks.test]
+help = "Run tests and coverage"
+
+cmd = """
+    pytest
+    --disable-pytest-warnings
+    --cov=src
+    --cov-report=html
+"""
+
+[tool.poe.tasks.bump]
+help = "Bump package version through committizen"
+
+cmd = """
+    cz
+    bump
+"""
+
+[tool.poe.tasks.update-precommit]
+help = "Update pre-commit packages"
+
+cmd = """
+    pre-commit
+    autoupdate
+"""

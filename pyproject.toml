@@ -1,0 +1,62 @@
+[project]
+name = "mcp-course"
+version = "0.11.0"
+description = "mcp-course"
+requires-python = ">=3.12"
+
+dependencies = [
+    "fastmcp>=2.10.6",
+    "mcp[cli]>=1.12.0",
+    "anthropic>=0.51.0",
+    "arxiv>=2.2.0",
+    "mcp>=1.7.1",
+    "pypdf2>=3.0.1",
+    "typing>=3.10.0.0",
+    "nest-asyncio>=1.6.0",
+]
+
+readme = "README.md"
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.4.3",
+    "pytest-cookies>=0.7.0",
+    "pytest-cov>=4.1.0",
+    "pytest-xdist>=3.5.0",
+    "pytest-env>=1.1.3"
+]
+
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages]
+find = {}
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "v$major.$minor.$patch$prerelease"
+version_scheme = "pep440"
+version_provider = "pep621"
+update_changelog_on_bump = true
+major_version_zero = true
+version_files = ["pyproject.toml:(?i)version"
+                ]
+bump_message = "chore(bump): $current_version → $new_version [skip-ci]"
+
+# https://github.com/nat-n/poethepoet
+[tool.poe]
+include = "poe.toml"
+
+[tool.pdm]
+distribution = false
+
+
+[dependency-groups]
+dev = [
+    "commitizen>=3.13.0",
+    "poethepoet>=0.24.4",
+    "ipykernel>=6.29.5",
+    "ruff>=0.11.13",
+]
