@@ -1,7 +1,7 @@
 [project]
-name = "mcp-course"
+name = "simple-streamable-mcp"
 version = "0.11.0"
-description = "mcp-course"
+description = "simple streamable MCP chatbot"
 requires-python = ">=3.12"
 
 dependencies = [

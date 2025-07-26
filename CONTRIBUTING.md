@@ -37,7 +37,7 @@ Based on [UV](https://docs.astral.sh/uv/getting-started/installation/)
     ```bash
     uv remove pandas
     ```
-  
+
 
 #### 🌱 Initializing pre-commit
 
