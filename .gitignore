@@ -175,5 +175,6 @@ cython_debug/
 
 .langgraph_api
 
-# Defult files
+# Default files
 .DS_Store
+papers
