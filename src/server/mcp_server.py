@@ -9,13 +9,10 @@ PAPER_DIR = "papers"
 
 print(os.environ)
 
-if os.getenv("RUN_LOCALLY") == "True":
-    # Initialize FastMCP server
+if os.getenv("RUN_LOCALLY", "True") == "True":
     mcp = FastMCP("research")
 else:
-    # Initialize FastMCP server
     mcp = FastMCP("research", port=int(os.getenv("PORT")), stateless_http=False)
-    # mcp = FastMCP("research", port=8001, stateless_http=False)
 
 
 @mcp.tool()
@@ -183,8 +180,7 @@ Please present both detailed information about each paper and a high-level synth
 
 if __name__ == "__main__":
     # Initialize and run the server
-    if os.getenv("RUN_LOCALLY") == "True":
+    if os.getenv("RUN_LOCALLY", "True") == "True":
         mcp.run(transport="stdio")
     else:
-        # mcp.run(transport="sse")
         mcp.run(transport="streamable-http")
