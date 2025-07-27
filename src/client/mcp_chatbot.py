@@ -27,6 +27,7 @@ class MCP_ChatBot:
         self.max_tokens_model = int(os.getenv("MAX_TOKENS_MODEL"))
 
     async def connect_to_server(self, server_name, server_config):
+        print(f"Connecting to server_name={server_name} for retrieving tools, prompts and resources")
         try:
             if os.getenv("RUN_LOCALLY") == "True":
                 server_params = StdioServerParameters(**server_config)
@@ -35,7 +36,6 @@ class MCP_ChatBot:
                 )
                 read, write = transport
             else:
-                print(f"Connecting to {server_name} using streamablehttp_client")
                 transport = await self.exit_stack.enter_async_context(
                     streamablehttp_client(url=self.url_mcp_server)
                 )
@@ -77,9 +77,9 @@ class MCP_ChatBot:
                         resource_uri = str(resource.uri)
                         self.sessions[resource_uri] = session
             except Exception as ex:
-                raise Exception(f"Error {ex}")
+                print(f"Error {ex}")
         except Exception as ex:
-            raise Exception(f"Error connecting to server: {server_name}: {ex}")
+            print(f"Error connecting to server: {server_name}: {ex}")
 
     async def connect_to_servers(self):
         """
@@ -97,7 +97,10 @@ class MCP_ChatBot:
                 await self.connect_to_server(server_name, server_config)
         except Exception as ex:
             raise Exception(f"Error loading server config: {ex}")
-        
+        #print(f"Connected to {len(self.sessions)} servers")
+        #print(f"Available tools: {self.available_tools}")
+        #print(f"Available prompts: {self.available_prompts}")
+        print("*"*50)
 
     async def process_query(self, query):
 
