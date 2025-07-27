@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "research": {
-      "command": "uv",
-      "args": ["run", "src/server/mcp_server.py"]
-    }
-  }
-}

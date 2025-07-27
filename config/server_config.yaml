@@ -1,0 +1,3 @@
+"mcpServers":
+  "research":
+    "endpoint": "http://localhost:8001/mcp/"
