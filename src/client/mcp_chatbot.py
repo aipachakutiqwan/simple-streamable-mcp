@@ -10,11 +10,11 @@ from mcp.client.streamable_http import streamablehttp_client
 from mcp import ClientSession, StdioServerParameters
 
 
-nest_asyncio.apply()
-
 class MCP_ChatBot:
 
-    def __init__(self):
+    def __init__(self, run_locally):
+
+        self.run_locally = run_locally
         self.exit_stack = AsyncExitStack()
         self.anthropic = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
         self.available_tools = []
@@ -22,6 +22,7 @@ class MCP_ChatBot:
         # Sessions dict maps tool/prompt names or resource URIs to MCP client sessions
         self.sessions = {}
         self.server_config_file = os.getenv("SERVER_CONFIG_FILE")
+        self.local_config_file = os.getenv("LOCAL_CONFIG_FILE")
         self.url_mcp_server = os.getenv("URL_MCP_SERVER")
         self.anthropic_model = os.getenv("ANTHROPIC_MODEL")
         self.max_tokens_model = int(os.getenv("MAX_TOKENS_MODEL"))
@@ -29,7 +30,7 @@ class MCP_ChatBot:
     async def connect_to_server(self, server_name, server_config):
         print(f"Connecting to server_name={server_name} for retrieving tools, prompts and resources")
         try:
-            if os.getenv("RUN_LOCALLY") == "True":
+            if self.run_locally:
                 server_params = StdioServerParameters(**server_config)
                 transport = await self.exit_stack.enter_async_context(
                     stdio_client(server_params)
@@ -37,18 +38,16 @@ class MCP_ChatBot:
                 read, write = transport
             else:
                 transport = await self.exit_stack.enter_async_context(
-                    streamablehttp_client(url=self.url_mcp_server)
+                    streamablehttp_client(url=server_config.get('endpoint'))
                 )
                 read, write, _ = transport
 
             session = await self.exit_stack.enter_async_context(
                 ClientSession(read, write)
             )
-            print(f"session: {session}")
             await session.initialize()
             try:
                 tools_response = await session.list_tools()
-                print(f"tools_response: {tools_response}")
                 for tool in tools_response.tools:
                     self.sessions[tool.name] = session
                     self.available_tools.append(
@@ -59,7 +58,6 @@ class MCP_ChatBot:
                         }
                     )
                 prompts_response = await session.list_prompts()
-                print(f"prompts_response: {prompts_response}")
                 if prompts_response and prompts_response.prompts:
                     for prompt in prompts_response.prompts:
                         self.sessions[prompt.name] = session
@@ -71,7 +69,6 @@ class MCP_ChatBot:
                             }
                         )
                 resources_response = await session.list_resources()
-                print(f"resources_response: {resources_response}")
                 if resources_response and resources_response.resources:
                     for resource in resources_response.resources:
                         resource_uri = str(resource.uri)
@@ -90,17 +87,17 @@ class MCP_ChatBot:
             :None: None.
         """
         try:
-            with open(self.server_config_file, "r") as file:
+            if self.run_locally:
+                config_file = self.local_config_file
+            else:
+                config_file = self.server_config_file
+            with open(config_file, "r") as file:
                 data = json.load(file)
             servers = data.get("mcpServers", {})
             for server_name, server_config in servers.items():
                 await self.connect_to_server(server_name, server_config)
         except Exception as ex:
             raise Exception(f"Error loading server config: {ex}")
-        #print(f"Connected to {len(self.sessions)} servers")
-        #print(f"Available tools: {self.available_tools}")
-        #print(f"Available prompts: {self.available_prompts}")
-        print("*"*50)
 
     async def process_query(self, query):
 
@@ -127,7 +124,7 @@ class MCP_ChatBot:
                     if not session:
                         print(f"Tool '{content.name}' not found.")
                         break
-                    result = await session.call_tool(content.name, 
+                    result = await session.call_tool(content.name,
                                                      arguments=content.input)
                     messages.append(
                         {
@@ -259,15 +256,18 @@ class MCP_ChatBot:
         await self.exit_stack.aclose()
 
 
-async def main():
-    chatbot = MCP_ChatBot()
+async def main(run_locally):
+    chatbot = MCP_ChatBot(run_locally)
     try:
         await chatbot.connect_to_servers()
         await chatbot.chat_loop()
     finally:
-        #pass
         await chatbot.cleanup()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+
+    run_locally = True if os.getenv("RUN_LOCALLY", "True") in ["True", "true", True] else False
+    if run_locally:
+        nest_asyncio.apply()
+    asyncio.run(main(run_locally))
