@@ -298,7 +298,11 @@ class McpChatBot:
 
 
 class ClientApplication:
+
     def __init__(self, run_locally, connectors_config_file):
+        """
+        Initialize the client application.
+        """
         self.run_locally = run_locally
         self.log_config_file = os.getenv("LOG_CONFIG_FILE")
         self.connectors_config = get_app_config_parameters(connectors_config_file)
@@ -306,6 +310,9 @@ class ClientApplication:
         logging.info("Config is read and logging lib is initialized.")
 
     async def run(self):
+        """
+        Run the client application.
+        """
         chatbot = McpChatBot(self.run_locally, self.connectors_config)
         try:
             await chatbot.connect_to_servers()
@@ -315,6 +322,7 @@ class ClientApplication:
 
 
 if __name__ == "__main__":
+
     run_locally = (
         True if os.getenv("RUN_LOCALLY", "True") in ["True", "true", True] else False
     )
