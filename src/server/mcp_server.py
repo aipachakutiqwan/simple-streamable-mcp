@@ -17,7 +17,7 @@ RUN_LOCALLY = (
 if RUN_LOCALLY:
     mcp = FastMCP("research")
 else:
-    mcp = FastMCP("research", port=int(os.getenv("PORT")), stateless_http=False)
+    mcp = FastMCP("research", port=int(os.getenv("PORT", 8001)), stateless_http=False)
 
 
 @mcp.tool()
@@ -184,7 +184,7 @@ class ServerLogging:
         """
         Initialize the Server application.
         """
-        self.log_config_file = os.getenv("LOG_CONFIG_FILE")
+        self.log_config_file = os.getenv("LOG_CONFIG_FILE", "config/log_config.yaml")
 
     def run(self):
         """
