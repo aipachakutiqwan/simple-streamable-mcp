@@ -87,6 +87,5 @@ Use: @<topic> to search papers in that topic.
 Use: /prompts to list available prompts.
 Use: /prompt <prompt name> <arg1=value1> to execute a prompt.
 
-Send a message: 
+Send a message:
 ```
-
