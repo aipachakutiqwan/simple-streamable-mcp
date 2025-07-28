@@ -4,8 +4,8 @@ import asyncio
 from contextlib import AsyncExitStack
 
 import nest_asyncio
-from anthropic import Anthropic
 import mcp.types as types
+from anthropic import Anthropic
 from mcp.client.stdio import stdio_client
 from mcp.client.streamable_http import streamablehttp_client
 from mcp import ClientSession, StdioServerParameters
@@ -15,6 +15,7 @@ from src.log_management.log_management import configure_logger
 
 
 class McpChatBot:
+
     def __init__(self, run_locally, connectors_config):
         """
         Initialize the McpChatBot instance.
@@ -23,7 +24,6 @@ class McpChatBot:
             :param connectors_config: Configuration for connectors from
                                       local or server file configuration
         """
-
         self.run_locally = run_locally
         self.connectors_config = connectors_config
         self.exit_stack = AsyncExitStack()
@@ -138,7 +138,7 @@ class McpChatBot:
             has_tool_use = False
             for content in response.content:
                 if content.type == "text":
-                    print("content.text")
+                    print(content.text)
                     assistant_content.append(content)
                 elif content.type == "tool_use":
                     has_tool_use = True

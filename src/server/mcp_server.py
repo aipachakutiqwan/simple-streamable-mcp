@@ -6,10 +6,9 @@ from typing import List
 from mcp.server.fastmcp import FastMCP
 
 PAPER_DIR = "papers"
+RUN_LOCALLY = True if os.getenv("RUN_LOCALLY", "True") in [True, 'true', 'True'] else False
 
-print(os.environ)
-
-if os.getenv("RUN_LOCALLY", "True") == "True":
+if RUN_LOCALLY:
     mcp = FastMCP("research")
 else:
     mcp = FastMCP("research", port=int(os.getenv("PORT")), stateless_http=False)
@@ -180,7 +179,8 @@ Please present both detailed information about each paper and a high-level synth
 
 if __name__ == "__main__":
     # Initialize and run the server
-    if os.getenv("RUN_LOCALLY", "True") == "True":
+    print(os.environ)
+    if RUN_LOCALLY:
         mcp.run(transport="stdio")
     else:
         mcp.run(transport="streamable-http")
