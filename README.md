@@ -32,18 +32,22 @@ export MAX_TOKENS_MODEL=2024
 ```
 
 ### 🌱 Antrophic Claude API
-* Sign up [here](https://console.anthropic.com/settings/keys) and set `ANTHROPIC_API_KEY` in your environment
+* Sign up [here](https://console.anthropic.com/settings/keys) and set `ANTHROPIC_API_KEY` in your environment.
 
 
-## ✅ :white_check_mark:	 How to Use
+## ✅ How to Use
 
-:pushpin: Locally: This version initializes the chatbot and creates an MCP instance locally using the local configuration file.
+:pushpin: Locally
+
+This version initializes the chatbot and creates an MCP instance locally using the local configuration file.
 ```
 export RUN_LOCALLY=True
 python src/client/mcp_chatbot.py
 ```
 
-:pushpin: Client/Server: This version starts the MPC server and initializes an MCP client chatbot to communicate with it.
+:pushpin: Client/Server
+
+This version starts the MPC server and initializes an MCP client chatbot to communicate with it. Follow the next 2 steps to activate the Client/Server option.
 
 Launch a terminal session and activate the MCP server.
 ```
@@ -51,19 +55,20 @@ export RUN_LOCALLY=False
 python src/server/mcp_server.py
 ```
 Open a new terminal and start the MCP client.
-
 ```
 export RUN_LOCALLY=False
 python src/client/mcp_chatbot.py
 ```
 
-:pushpin: MCP Inspector: Enables activation of the MCP inspector interface for interaction with the MCP server.
+:pushpin: MCP Inspector
+Enables activation of the MCP inspector interface for interaction with the MCP server.
 
 Execute the following command, setting the STDIO parameters to establish a connection with the MCP server.
 
 ```
 mcp dev src/server/mcp_server.py
 ```
-Transport type: STDIO
-Command: uv
-Arguments: run --with mcp mcp run src/server/mcp_server.py
+
+- Transport type: STDIO
+- Command: uv
+- Arguments: run --with mcp mcp run src/server/mcp_server.py
