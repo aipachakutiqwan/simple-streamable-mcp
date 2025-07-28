@@ -1,5 +1,4 @@
 import os
-import logging
 import asyncio
 from contextlib import AsyncExitStack
 
@@ -11,11 +10,9 @@ from mcp.client.streamable_http import streamablehttp_client
 from mcp import ClientSession, StdioServerParameters
 
 from src.log_management.config import get_app_config_parameters
-from src.log_management.log_management import configure_logger
 
 
 class McpChatBot:
-
     def __init__(self, run_locally, connectors_config):
         """
         Initialize the McpChatBot instance.
@@ -71,7 +68,7 @@ class McpChatBot:
                     resource_uri = str(resource.uri)
                     self.sessions[resource_uri] = session
         except Exception as ex:
-            logging.error(f"Error loading MCP component from session={session}: {ex}")
+            print(f"Error loading MCP component from session={session}: {ex}")
 
     async def connect_to_server(self, server_name, server_config):
         """
@@ -82,10 +79,6 @@ class McpChatBot:
         Returns:
             :None
         """
-        logging.info(
-            f"Connecting to server_name={server_name} for retrieving tools, "
-            f"prompts and resources"
-        )
         try:
             if self.run_locally:
                 server_params = StdioServerParameters(**server_config)
@@ -105,7 +98,7 @@ class McpChatBot:
             await session.initialize()
             await self.load_mcp_components(session)
         except Exception as ex:
-            logging.error(f"Error connecting to server: {server_name}: {ex}")
+            print(f"Error connecting to server: {server_name}: {ex}")
 
     async def connect_to_servers(self):
         """
@@ -193,7 +186,7 @@ class McpChatBot:
             else:
                 print("No content available.")
         except Exception as ex:
-            logging.info(f"Error getting resource={resource_uri}: {ex}")
+            print(f"Error getting resource={resource_uri}: {ex}")
 
     async def list_prompts(self):
         """
@@ -237,10 +230,10 @@ class McpChatBot:
                         item.text if hasattr(item, "text") else str(item)
                         for item in prompt_content
                     )
-                logging.info(f"\nExecuting prompt '{prompt_name}'...")
+                print(f"\nExecuting prompt '{prompt_name}'...")
                 await self.process_query(text)
         except Exception as e:
-            logging.error(f"Error executing prompt={prompt_name}: {e}")
+            print(f"Error executing prompt={prompt_name}: {e}")
 
     async def chat_loop(self):
         print(
@@ -298,16 +291,12 @@ class McpChatBot:
 
 
 class ClientApplication:
-
     def __init__(self, run_locally, connectors_config_file):
         """
         Initialize the client application.
         """
         self.run_locally = run_locally
-        self.log_config_file = os.getenv("LOG_CONFIG_FILE")
         self.connectors_config = get_app_config_parameters(connectors_config_file)
-        configure_logger(self.log_config_file)
-        logging.info("Config is read and logging lib is initialized.")
 
     async def run(self):
         """
@@ -322,7 +311,6 @@ class ClientApplication:
 
 
 if __name__ == "__main__":
-
     run_locally = (
         True if os.getenv("RUN_LOCALLY", "True") in ["True", "true", True] else False
     )
