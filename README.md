@@ -4,8 +4,9 @@ Welcome to the lightweight Streamable MCP client-server chatbot powered by Anthr
 
 ## ⚡ Introduction
 
-This repository provides a simple implementation of a streamable MCP client-server chatbot that uses Anthropic Claude as the LLM backend. The chatbot is designed to answer questions about research papers on arXiv or extract specific information from them.
+This repository provides a simple implementation of a streamable MCP client-server chatbot that uses Anthropic Claude as the LLM backend. The chatbot is designed to answer questions about research papers on arXiv or extract specific information from them. 
 
+This implementation is a slight modification based on the publicly available MCP: Build Rich-Context AI Apps with Anthropic course.
 
 :heavy_exclamation_mark: **This repository code is not intended for direct use in production**. Do not use it as-is. It serves as a reference implementation. You should review the logic, refactor the code to fit your requirements, and write appropriate unit tests before considering it for any production deployment.
 
