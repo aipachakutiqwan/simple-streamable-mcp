@@ -28,7 +28,6 @@ export RUN_LOCALLY=False
 export PORT=8001
 export ANTHROPIC_MODEL=claude-3-7-sonnet-20250219
 export MAX_TOKENS_MODEL=2024
-
 ```
 
 ### 🌱 Antrophic Claude API
@@ -47,7 +46,7 @@ python src/client/mcp_chatbot.py
 
 :pushpin: Client/Server
 
-This version starts the MPC server and initializes an MCP client chatbot to communicate with it. Follow the next 2 steps to activate the Client/Server option.
+This version starts the MPC server and initializes an MCP client chatbot to communicate with it. Follow the next two steps to activate the Client/Server option.
 
 Launch a terminal session and activate the MCP server.
 ```
@@ -61,6 +60,7 @@ python src/client/mcp_chatbot.py
 ```
 
 :pushpin: MCP Inspector
+
 Enables activation of the MCP inspector interface for interaction with the MCP server.
 
 Execute the following command, setting the STDIO parameters to establish a connection with the MCP server.
@@ -72,3 +72,20 @@ mcp dev src/server/mcp_server.py
 - Transport type: STDIO
 - Command: uv
 - Arguments: run --with mcp mcp run src/server/mcp_server.py
+
+## 🤖 Chatbot
+
+The chatbot will appear as shown below—this is an example of its interface in the terminal.
+
+
+```
+Hello! I'm here to help you search for academic papers on arXiv or extract information about specific papers.
+(Write 'quit' to exit.)
+
+Use: @papers to see available papers topics.
+Use: @<topic> to search papers in that topic.
+Use: /prompts to list available prompts.
+Use: /prompt <prompt name> <arg1=value1> to execute a prompt.
+
+Send a message:
+```

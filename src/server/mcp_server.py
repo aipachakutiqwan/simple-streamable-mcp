@@ -33,8 +33,7 @@ def search_papers(topic: str, max_results: int = 5) -> List[str]:
 
     client = arxiv.Client()
     search = arxiv.Search(
-        query=topic, max_results=max_results,
-        sort_by=arxiv.SortCriterion.Relevance
+        query=topic, max_results=max_results, sort_by=arxiv.SortCriterion.Relevance
     )
     papers = client.results(search)
     path = os.path.join(PAPER_DIR, topic.lower().replace(" ", "_"))
