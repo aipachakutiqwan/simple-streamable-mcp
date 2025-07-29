@@ -1,7 +1,7 @@
 # CONTRIBUTING
 
 
-Welcome to the Python code snippet for LangGraph using Google Gemini (ChatGoogleGenerativeAI), and thank you for your interest in contributing!
+Welcome to the Simple Streamable MCP implementation, and thank you for your interest in contributing!
 
 This guide is chiefly for users wishing to contribute to the project.
 
